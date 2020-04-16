@@ -13,7 +13,7 @@ from pandas.plotting import lag_plot
 from pandas import datetime
 from statsmodels.tsa.arima_model import ARIMA
 from sklearn.metrics import mean_squared_error
-
+from tqdm import tqdm
 
 df = pd.read_csv("SPY_daily.csv").fillna(0).set_index('date').sort_index()
 df.head()
@@ -41,7 +41,7 @@ test_ar = test_data['1. open'].values
 history = [x for x in train_ar]
 print(type(history))
 predictions = list()
-for t in range(len(test_ar)):
+for t in tqdm(range(len(test_ar))):
     model = ARIMA(history, order=(5,1,0))
     model_fit = model.fit(disp=0)
     output = model_fit.forecast()
