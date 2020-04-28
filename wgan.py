@@ -27,8 +27,8 @@ from tqdm import tqdm
 
 df = pd.read_csv("SPY_daily.csv").fillna(0).set_index('date').sort_index()
 ts = df[["4. close"]]
-df = pd.read_csv("AirPassengers.csv")
-ts = df[["#Passengers"]]
+# df = pd.read_csv("AirPassengers.csv")
+# ts = df[["#Passengers"]]
 X_train = ts.values
 shape=(X_train.shape[1],1)
 
@@ -169,8 +169,10 @@ class GAN():
 
         for epoch in tqdm(range(epochs)):
 
-            idx = np.random.randint(0, X_train.shape[0], batch_size)
-            data_s = X_train[idx]
+            # idx = np.random.randint(0, X_train.shape[0], batch_size)
+            # data_s = X_train[idx]
+            data_s = X_train[0:batch_size]
+
 
             noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
             
@@ -211,4 +213,4 @@ class GAN():
 
 if __name__ == '__main__':
     gan = GAN()
-    gan.train(epochs=2000, batch_size=32, sample_interval=100)
+    gan.train(epochs=2000, batch_size=200, sample_interval=100)

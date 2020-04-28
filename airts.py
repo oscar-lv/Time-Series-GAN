@@ -29,20 +29,29 @@ from tqdm import tqdm
 
 df = pd.read_csv("SPY_daily.csv").fillna(0).set_index('date').sort_index()
 ts = df[["4. close"]]
-ts = np.log(ts) - np.log(ts.shift(1))
+# ts = np.log(ts) - np.log(ts.shift(1))
+df = pd.read_csv("AirPassengers.csv")
+ts = df[["#Passengers"]]
 X_train = ts.dropna().values
 
 # X_train= np.reshape(X_train,(1,X_train.shape[0], X_train.shape[1]))
-
 X_train = np.expand_dims(X_train, axis=2)
 shape=(X_train.shape)
-
-# Rescale -1 to 1
-#X_train = X_train / 127.5 - 1.
 
 
 print("X_train")
 print(X_train.shape)
+
+def generate_sp_samples(n):
+   data = pd.read_csv('./SPY_daily.csv')[['date', '4. close']].set_index('date').sort_index()
+   X1 = np.arange(len(data[0:n]))
+   X2 = np.log(data) - np.log(data.shift(1))
+   X2 = X2[1:n].values
+   X1 = X1.reshape(n, 1)
+   X2 = X2.reshape(n, 1)
+   X = np.hstack((X1, X2))
+   y = np.ones((n, 1))
+   return X, y
 
 
 class GAN():
@@ -157,8 +166,8 @@ class GAN():
 
         for epoch in tqdm(range(epochs)):
 
-            idx = np.random.randint(0, X_train.shape[0], batch_size)
-            data_s = X_train[idx]
+            # idx = np.random.randint(0, X_train.shape[0], batch_size)
+            data_s = X_train[0:batch_size]
 
             noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
             
@@ -194,4 +203,4 @@ class GAN():
 
 if __name__ == '__main__':
     gan = GAN()
-    gan.train(epochs=300, batch_size=5000, sample_interval=500)
+    gan.train(epochs=1000, batch_size=120, sample_interval=20)
