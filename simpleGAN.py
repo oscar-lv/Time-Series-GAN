@@ -6,78 +6,19 @@ Created on Sat Feb 29 12:17:37 2020
 @author: oscar
 """
 
+import matplotlib.pyplot as plt
 # example of generating random samples from X^2
 import numpy as np
-from numpy.random import rand
-from numpy import hstack
-import matplotlib.pyplot as plt
-from tensorflow.keras.layers import Dense, LeakyReLU, BatchNormalization, Flatten
+from tensorflow.keras.layers import Dense, LeakyReLU, BatchNormalization
 from tensorflow.keras.models import Sequential
 
 """
 
+
 Discriminator Data Generation
 
 """
-
-# generate n real samples with class labels
-def generate_real_samples(n):
-    # generate inputs in [-0.5, 0.5]
-    X1 = np.arange(n)
-    X1 = X1 * np.pi/180
-    # generate outputs X^2
-    X2 = np.cos(X1)
-    # stack arrays
-    X1 = X1.reshape(n, 1)
-    X2 = X2.reshape(n, 1)
-    X = hstack((X1, X2))
-    # generate class labels
-    y = np.ones((n, 1))
-    return X, y
-
-import pandas as pd
-
-
-def generate_sp_samples(n):
-   data = pd.read_csv('./SPY_daily.csv')[['date', '4. close']].set_index('date').sort_index()
-   X1 = np.arange(len(data[0:n]))
-   X2 = np.log(data) - np.log(data.shift(1))
-   X2 = X2[1:n].values
-   X1 = X1.reshape(n, 1)
-   X2 = X2.reshape(n, 1)
-   X = hstack((X1, X2))
-   y = np.ones((n, 1))
-   return X, y
-
-def generate_ts_samples(n):
-   data = pd.read_csv("AirPassengers.csv")[["#Passengers"]]
-   X1 = np.arange(len(data[0:n]))
-   X2 = data[0:n].values
-   X1 = X1.reshape(n, 1)
-   X2 = X2.reshape(n, 1)
-   X = hstack((X1, X2))
-   y = np.ones((n, 1))
-   return X, y
-    
-def plot_n(n):
-    X,y = generate_real_samples(n)
-    plt.scatter(X[:,0], X[:,1])
-    
-
-# generate n fake samples with class labels
-def generate_fake_samples(n):
-    # generate inputs in [-0.5, 0.5]
-    X1 = rand(n) - 0.5
-    # generate outputs X^2
-    X2 = X1 * X1
-    # stack arrays
-    X1 = X1.reshape(n, 1)
-    X2 = X2.reshape(n, 1)
-    X = hstack((X1, X2))
-    # generate class labels
-    y = np.zeros((n, 1))
-    return X, y
-
+from data_utils import generate_monte_carlo as generate_sp_samples
 """
 
 Discriminator Methods
@@ -86,12 +27,13 @@ Discriminator Methods
 
 from tqdm import tqdm
 
-def discriminator(n_inputs = 2):
+
+def discriminator(n_inputs=2):
     model = Sequential()
     # model.add(Dense(25, activation='relu', kernel_initializer='he_uniform', input_dim=n_inputs))
     # model.add(Dense(1, activation='sigmoid'))
-    
-    model.add(Dense(512,input_dim=n_inputs,activation='relu', kernel_initializer='he_uniform'))
+
+    model.add(Dense(512, input_dim=n_inputs, activation='relu', kernel_initializer='he_uniform'))
     model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(256))
     model.add(LeakyReLU(alpha=0.2))
@@ -99,21 +41,7 @@ def discriminator(n_inputs = 2):
     # compile model
     model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
     return model
- 
 
-def train_discriminator(model, n_epochs=1000, n_batch=128):
-    half_batch = int(n_batch/2)
-    for e in tqdm(range(n_epochs)):
-        X_real, y_real = generate_real_samples(half_batch)
-        model.train_on_batch(X_real, y_real)
-        X_fake, y_fake = generate_fake_samples(half_batch)
-        model.train_on_batch(X_fake, y_fake)
-        _, acc_real = model.evaluate(X_real, y_real, verbose=0)
-        _, acc_fake = model.evaluate(X_fake, y_fake, verbose=0)
-        print('Iteration: '+ str(e) + '/' + str(n_epochs-1) + " - Real Acc: " + str(acc_real) + " - Fake Acc: " + str(acc_fake))
-
-# model = discriminator()
-# train_discriminator(model)
 
 """
 
@@ -121,17 +49,19 @@ Generator Methods
 
 """
 
+
 def z_gen(noise_dim=5, n=100):
     x_input = np.random.randn(noise_dim * n)
     x_input = x_input.reshape(n, noise_dim)
     return x_input
-    
-def generator(noise_dim, n_outputs = 2):
+
+
+def generator(noise_dim, n_outputs=2):
     model = Sequential()
     # model.add(Dense(15, activation='relu', kernel_initializer='he_uniform', input_dim=noise_dim))
     # model.add(Dense(n_outputs, activation='linear'))
-    
-    model.add(Dense(256,  kernel_initializer='he_uniform', input_dim=noise_dim))
+
+    model.add(Dense(256, kernel_initializer='he_uniform', input_dim=noise_dim))
     model.add(LeakyReLU(alpha=0.2))
     model.add(BatchNormalization(momentum=0.8))
     model.add(Dense(512))
@@ -146,18 +76,18 @@ def generator(noise_dim, n_outputs = 2):
 
 
 def generate_from_noise(generator, noise_dim, n):
-   x_input = z_gen(noise_dim, n)
-   X = generator.predict(x_input)
-   y = np.zeros((n, 1))
-   return X, y
-    
-   
+    x_input = z_gen(noise_dim, n)
+    X = generator.predict(x_input)
+    y = np.zeros((n, 1))
+    return X, y
+
 
 """
 
 GAN Methods
 
-""" 
+"""
+
 
 def define_gan(generator, discriminator):
     # make weights in the discriminator not trainable
@@ -172,12 +102,15 @@ def define_gan(generator, discriminator):
     model.compile(loss='binary_crossentropy', optimizer='adam')
     return model
 
+
 """
 
 Evaluation
 
 """
-# evaluate the discriminator and plot real and fake points
+
+
+# evaluate the discriminator and oit_not real and fake points
 def summarize_performance(epoch, generator, discriminator, latent_dim, n=100):
     # prepare real samples
     x_real, y_real = generate_sp_samples(n)
@@ -191,25 +124,30 @@ def summarize_performance(epoch, generator, discriminator, latent_dim, n=100):
     print(epoch, acc_real, acc_fake)
     # scatter plot real and fake data points
     plt.scatter(x_real[:, 0], x_real[:, 1], color='red')
+    # plt.plot(x_real, label='real')
+    # plt.plot(x_fake, label='generated')
+    # plt.legend(['real', 'generated'])
     plt.scatter(x_fake[:, 0], x_fake[:, 1], color='blue')
     plt.show()
-    
+
+
 """
 
 GAN Training
 
 """
 
+
 # train the generator and discriminator
 def train(g_model, d_model, gan_model, latent_dim, n_epochs=20000, n_batch=8000, n_eval=200):
     # determine half the size of one batch, for updating the discriminator
     half_batch = int(n_batch / 2)
-    d_loss1, d_acc, g_loss1 = [],[],[]
+    d_loss1, d_acc, g_loss1 = [], [], []
 
     # manually enumerate epochs
     for i in tqdm(range(n_epochs)):
         # prepare real samples
-        x_real, y_real =  generate_sp_samples(half_batch)
+        x_real, y_real = generate_sp_samples(half_batch)
         # prepare fake examples
         x_fake, y_fake = generate_from_noise(g_model, latent_dim, half_batch)
         # update discriminator
@@ -225,20 +163,18 @@ def train(g_model, d_model, gan_model, latent_dim, n_epochs=20000, n_batch=8000,
         d_loss1.append(d_loss[0])
         d_acc.append(d_loss[1])
         g_loss1.append(g_loss)
-        print ("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (i, d_loss[0], 100*d_loss[1], g_loss))
+        print ("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (i, d_loss[0], 100 * d_loss[1], g_loss))
         # evaluate the model every n_eval epochs
-        if (i+1) % n_eval == 0:
+        if (i + 1) % n_eval == 0:
             summarize_performance(i, g_model, d_model, latent_dim, n=half_batch)
-    #g_model.save('generator.h5')
-            
+    # g_model.save('generator.h5')
+
+
 # size of the latent space
 noise_dim = 5
 # define the discriminator model
-generator = generator(noise_dim)
-discriminator = discriminator()
+generator = generator(noise_dim, 11)
+discriminator = discriminator(11)
 gan_model = define_gan(generator, discriminator)
 # summarize gan model
-train(generator, discriminator, gan_model, noise_dim)
-
-
-
+train(generator, discriminator, gan_model, noise_dim, n_epochs=30000, n_batch=100, n_eval=10)

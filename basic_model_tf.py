@@ -1,10 +1,11 @@
 # -*- coding: utf-8 -*-
 
-from utils import csv_to_dataset, history_points
 import numpy as np
-from tensorflow.keras.models import Model
 from tensorflow.keras import optimizers
 from tensorflow.keras.layers import Dense, Dropout, LSTM, Input, Activation
+from tensorflow.keras.models import Model
+
+from utils import csv_to_dataset, history_points
 
 # dataset
 
@@ -39,8 +40,7 @@ history = model.fit(x=ohlcv_train, y=y_train, batch_size=32, epochs=50, shuffle=
 
 model.save(f'basic_model_tf.h5')
 
-
-# evaluation
+# evaluationfrom 
 
 y_test_predicted = model.predict(ohlcv_test)
 y_test_predicted = y_normaliser.inverse_transform(y_test_predicted)

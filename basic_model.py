@@ -1,17 +1,18 @@
 # -*- coding: utf-8 -*-
 
-import keras
-from keras.models import Model
-from keras.layers import Dense, Dropout, LSTM, Input, Activation
-from keras import optimizers
 import numpy as np
+from keras import optimizers
+from keras.layers import Dense, Dropout, LSTM, Input, Activation
+from keras.models import Model
+
 np.random.seed(4)
 import tensorflow.compat.v1 as tf
+
 tf.disable_v2_behavior()
-from  tensorflow.compat.v1 import set_random_seed
+from tensorflow.compat.v1 import set_random_seed
+
 set_random_seed(4)
 from utils import csv_to_dataset, history_points
-
 
 # dataset
 
@@ -30,7 +31,6 @@ unscaled_y_test = unscaled_y[n:]
 
 print(ohlcv_train.shape)
 print(ohlcv_test.shape)
-
 
 # model architecture
 
@@ -59,9 +59,10 @@ y_predicted = y_normaliser.inverse_transform(y_predicted)
 assert unscaled_y_test.shape == y_test_predicted.shape
 real_mse = np.mean(np.square(unscaled_y_test - y_test_predicted))
 from sklearn.metrics import mean_squared_error
+
 mean_squared_error(unscaled_y_test, y_test_predicted)
 scaled_mse = real_mse / (np.max(unscaled_y_test) - np.min(unscaled_y_test)) * 100
-print(scaled_mse) 
+print(scaled_mse)
 
 import matplotlib.pyplot as plt
 
@@ -70,10 +71,9 @@ plt.gcf().set_size_inches(22, 15, forward=True)
 start = 0
 end = -1
 
-alls = plt.plot(y_normaliser.inverse_transform(y_train)) 
+alls = plt.plot(y_normaliser.inverse_transform(y_train))
 real = plt.plot(unscaled_y_test[start:end], label='real')
 pred = plt.plot(y_test_predicted[start:end], label='predicted')
-
 
 plt.legend(['Real', 'Predicted'])
 

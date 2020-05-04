@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-  
+
+import numpy as np
 import pandas as pd
 from sklearn import preprocessing
-import numpy as np
 
 history_points = 50
 
@@ -19,8 +19,10 @@ def csv_to_dataset(csv_path):
     data_normalised = data_normaliser.fit_transform(data)
 
     # using the last {history_points} open close high low volume data points, predict the next open value
-    ohlcv_histories_normalised = np.array([data_normalised[i:i + history_points].copy() for i in range(len(data_normalised) - history_points)])
-    next_day_open_values_normalised = np.array([data_normalised[:, 0][i + history_points].copy() for i in range(len(data_normalised) - history_points)])
+    ohlcv_histories_normalised = np.array(
+        [data_normalised[i:i + history_points].copy() for i in range(len(data_normalised) - history_points)])
+    next_day_open_values_normalised = np.array(
+        [data_normalised[:, 0][i + history_points].copy() for i in range(len(data_normalised) - history_points)])
     next_day_open_values_normalised = np.expand_dims(next_day_open_values_normalised, -1)
 
     next_day_open_values = np.array([data[:, 0][i + history_points].copy() for i in range(len(data) - history_points)])
@@ -30,7 +32,6 @@ def csv_to_dataset(csv_path):
     y_normaliser.fit(next_day_open_values)
 
     def calc_ema(values, time_period):
-        # https://www.investopedia.com/ask/answers/122314/what-exponential-moving-average-ema-formula-and-how-ema-calculated.asp
         sma = np.mean(values[:, 3])
         ema_values = [sma]
         k = 2 / (1 + time_period)
@@ -52,7 +53,8 @@ def csv_to_dataset(csv_path):
     tech_ind_scaler = preprocessing.MinMaxScaler()
     technical_indicators_normalised = tech_ind_scaler.fit_transform(technical_indicators)
 
-    assert ohlcv_histories_normalised.shape[0] == next_day_open_values_normalised.shape[0] == technical_indicators_normalised.shape[0]
+    assert ohlcv_histories_normalised.shape[0] == next_day_open_values_normalised.shape[0] == \
+           technical_indicators_normalised.shape[0]
     return ohlcv_histories_normalised, technical_indicators_normalised, next_day_open_values_normalised, next_day_open_values, y_normaliser
 
 

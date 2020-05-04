@@ -1,2 +1,4 @@
 *.h5
 *.csv
+models
+images

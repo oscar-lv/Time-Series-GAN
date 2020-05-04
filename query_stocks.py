@@ -28,10 +28,10 @@ def save_dataset(symbol, time_window):
     
     pprint(data.head(10))
 
-    #data.to_csv(f'./{symbol}_{time_window}.csv')
+    data.to_csv(f'./{symbol}_{time_window}.csv')
     return data, meta_data
 
-df, md = save_dataset('SPY', 'daily')
+df, md = save_dataset('AAPL', 'daily')
 df2, md2= save_dataset('SPY', 'intraday')
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()

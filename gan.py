@@ -2,56 +2,20 @@
 
 from __future__ import print_function, division
 
-from keras.datasets import mnist
-from keras.layers import Input, Dense, Reshape, Flatten, Dropout
-from keras.layers import BatchNormalization, Activation, ZeroPadding2D
-from keras.layers.advanced_activations import LeakyReLU
-from keras.layers import Dense, Convolution1D, MaxPool1D, Flatten, Dropout
-from keras.layers import LSTM,Bidirectional, GRU 
-from keras.models import Sequential, Model
-from keras.optimizers import Adam
-from keras import optimizers,regularizers
+from tensorflow.keras.layers import Input, Reshape, LeakyReLU, BatchNormalization, Dense, Convolution1D, Flatten
+from tensorflow.keras.layers import Dense, Convolution1D, Flatten
+from tensorflow.keras.models import Sequential, Model
+from tensorflow.keras.optimizers import Adam
 from numpy import expand_dims
-import numpy as np
 
-#import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 
 from matplotlib import pyplot as plt
-
-import pandas as pd
-
-import sys
 
 import numpy as np
 from tqdm import tqdm
 
-# -*- coding: utf-8 -*-
-
-df = pd.read_csv("SPY_daily.csv").fillna(0).set_index('date').sort_index()
-ts = df[["4. close"]]
-# ts = np.log(ts) - np.log(ts.shift(1))
-df = pd.read_csv("AirPassengers.csv")
-ts = df[["#Passengers"]]
-X_train = ts.dropna().values
-
-# X_train= np.reshape(X_train,(1,X_train.shape[0], X_train.shape[1]))
-X_train = np.expand_dims(X_train, axis=2)
-shape=(X_train.shape)
-
-
-print("X_train")
-print(X_train.shape)
-
-def generate_sp_samples(n):
-   data = pd.read_csv('./SPY_daily.csv')[['date', '4. close']].set_index('date').sort_index()
-   X1 = np.arange(len(data[0:n]))
-   X2 = np.log(data) - np.log(data.shift(1))
-   X2 = X2[1:n].values
-   X1 = X1.reshape(n, 1)
-   X2 = X2.reshape(n, 1)
-   X = np.hstack((X1, X2))
-   y = np.ones((n, 1))
-   return X, y
+from data_utils import generate_sp_samples
 
 
 class GAN():
@@ -67,12 +31,12 @@ class GAN():
 
         optimizer = Adam(0.0002, 0.5)
 
-        self.discriminator = self.build_discriminator()
+        self.discriminator = self.discriminator()
         self.discriminator.compile(loss='binary_crossentropy',
-            optimizer=optimizer,
-            metrics=['accuracy'])
+                                   optimizer=optimizer,
+                                   metrics=['accuracy'])
 
-        self.generator = self.build_generator()
+        self.generator = self.generator()
 
         z = Input(shape=(self.latent_dim,))
         data = self.generator(z)
@@ -81,7 +45,6 @@ class GAN():
         validity = self.discriminator(data)
         self.combined = Model(z, validity)
         self.combined.compile(loss='binary_crossentropy', optimizer=optimizer)
-
 
     def build_generator(self):
 
@@ -100,7 +63,7 @@ class GAN():
         model.add(Reshape(self.data_shape))
 
         model.summary()
-        
+
         # model = Sequential()
         # model.add(Dense(48,W_regularizer=regularizers.l2(l=0.01), input_dim=self.latent_dim))
         # model.add(Bidirectional(LSTM(64, return_sequences=True)))#, input_shape=(seqlength, features)) ) ### bidirectional ---><---
@@ -117,9 +80,40 @@ class GAN():
 
         return Model(noise, data)
 
+    def generator(self, n_outputs=2):
+        model = Sequential()
+        # model.add(Dense(15, activation='relu', kernel_initializer='he_uniform', input_dim=noise_dim))
+        # model.add(Dense(n_outputs, activation='linear'))
+
+        model.add(Dense(256, kernel_initializer='he_uniform', input_dim=self.latent_dim))
+        model.add(LeakyReLU(alpha=0.2))
+        model.add(BatchNormalization(momentum=0.8))
+        model.add(Dense(512))
+        model.add(LeakyReLU(alpha=0.2))
+        model.add(BatchNormalization(momentum=0.8))
+        model.add(Dense(1024))
+        model.add(LeakyReLU(alpha=0.2))
+        model.add(BatchNormalization(momentum=0.8))
+        model.add(Dense(n_outputs, activation='linear'))
+        # model.compile(optimizer='adam', loss='binary_crossentropy')
+        return model
+
+    def discriminator(self, n_inputs=2):
+        model = Sequential()
+        # model.add(Dense(25, activation='relu', kernel_initializer='he_uniform', input_dim=n_inputs))
+        # model.add(Dense(1, activation='sigmoid'))
+
+        model.add(Dense(512, input_dim=n_inputs, activation='relu', kernel_initializer='he_uniform'))
+        model.add(LeakyReLU(alpha=0.2))
+        model.add(Dense(256))
+        model.add(LeakyReLU(alpha=0.2))
+        model.add(Dense(1, activation='sigmoid'))
+        # compile model
+        model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+        return model
+
     def build_discriminator(self):
-        
-        
+
         model = Sequential()
 
         model.add(Flatten(input_shape=self.data_shape))
@@ -151,14 +145,15 @@ class GAN():
     def plot_gan_result(self, n):
         noise = np.random.normal(0, 1, (n, self.latent_dim))
         gen_data = self.generator.predict(noise)
-
-        b = gen_data.reshape(n, 1)
+        b = gen_data.reshape(n, 2)
+        b = gen_data
         fig, axs = plt.subplots()
         print("noise shape")
         print(noise.shape)
         print(noise[0])
-        axs.plot(b, color = "red", label = 'generated')
-        
+        axs.scatter(b[:, 0], b[:, 1], color='red', label='generated')
+        # axs.plot(b, color = "red", label = 'generated')
+
     def train(self, epochs, batch_size=128, sample_interval=50):
 
         valid = np.ones((batch_size, 1))
@@ -166,13 +161,11 @@ class GAN():
 
         for epoch in tqdm(range(epochs)):
 
-            # idx = np.random.randint(0, X_train.shape[0], batch_size)
-            data_s = X_train[0:batch_size]
+            data_s, _ = generate_sp_samples(batch_size)
 
             noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
-            
-            gen_data = self.generator.predict(noise)
 
+            gen_data = self.generator.predict(noise)
 
             d_loss_real = self.discriminator.train_on_batch(data_s, valid)
             d_loss_fake = self.discriminator.train_on_batch(gen_data, fake)
@@ -189,18 +182,18 @@ class GAN():
             self.d_loss1.append(d_loss[0])
             self.d_acc.append(d_loss[1])
             self.g_loss1.append(g_loss)
-            print ("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100*d_loss[1], g_loss))
-
+            print("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100 * d_loss[1], g_loss))
 
             if epoch % sample_interval == 0:
                 self.plot_gan_result(batch_size)
-                c = X_train.reshape(X_train.shape[0], 1)
+                c = data_s.reshape(data_s.shape[0], 2)
+                c = data_s
                 fig, axs = plt.subplots()
-                axs.plot(c, color = "blue", label = 'true')
+                axs.scatter(c[:, 0], c[:, 1], color='blue')
+                # axs.plot(c, color = "blue", label = 'true')
                 plt.show()
-
 
 
 if __name__ == '__main__':
     gan = GAN()
-    gan.train(epochs=1000, batch_size=120, sample_interval=20)
+    gan.train(epochs=5000, batch_size=2500, sample_interval=200)

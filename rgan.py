@@ -18,9 +18,6 @@ tf.logging.set_verbosity(tf.logging.ERROR)
 tf.reset_default_graph()
 from pandas_datareader import data
 from time import time
-from matplotlib.colors import hsv_to_rgb
-from scipy.stats import ks_2samp
-import yfinance as yf
 
 """ Environement Constants """
 learning_rate = 0.001
@@ -215,7 +212,7 @@ def train_discriminator(batch_idx, offset):
 
 
 print('num_epoch \t D_loss_curr \t G_loss_curr \t time elapsed ')
-samples = sample_data(n_samples) 
+samples = sample_data(n_samples)
 d_loss = []
 g_loss = []
 for num_epoch in range(num_epochs):
@@ -244,16 +241,10 @@ for num_epoch in range(num_epochs):
             gen_samples.append(gen_samples_mb)
             print(batch_idx)
 
-        #gen_samples = np.vstack(gen_samples)
-
-
-
-
-
-
+        # gen_samples = np.vstack(gen_samples)
 
 ##### Results¨
-            
+
 ax = pd.DataFrame({'Generative Loss ': g_loss, ' Discriminative Loss ': d_loss, }).plot(title='Training loss ',
                                                                                         logy=True)
 ax.set_xlabel(" Training iteration ")
@@ -294,19 +285,19 @@ def prices_gen_data_frame(num_samples=1):
 def prices_real_data_frame(num_samples=1):
     df = pd.DataFrame()
 
-
     for i in range(num_samples):
         df[i] = price_real()
     return df
 
+
 # Plot the price evolution of the generated sample
-def plot_price_gen ( num_gen_sample = 1) :
-    for i in range ( num_gen_sample ) :
-       daily_log_returns = generated_data [0 ,: , i ]
-       price_list = [ S ]
-       for x in daily_log_returns:
-           price_list.append(price_list[-1] * np.exp(x))
-       plt.plot(price_list)
+def plot_price_gen(num_gen_sample=1):
+    for i in range(num_gen_sample):
+        daily_log_returns = generated_data[0, :, i]
+        price_list = [S]
+        for x in daily_log_returns:
+            price_list.append(price_list[-1] * np.exp(x))
+        plt.plot(price_list)
     return plt.show()
 
 
