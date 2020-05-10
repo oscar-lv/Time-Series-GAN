@@ -7,10 +7,12 @@ Created on Sat Feb 29 12:17:37 2020
 """
 
 import matplotlib.pyplot as plt
-# example of generating random samples from X^2
 import numpy as np
 from tensorflow.keras.layers import Dense, LeakyReLU, BatchNormalization
 from tensorflow.keras.models import Sequential
+import tensorflow as tf
+tf.keras.backend.clear_session()
+
 
 """
 
@@ -18,7 +20,7 @@ from tensorflow.keras.models import Sequential
 Discriminator Data Generation
 
 """
-from data_utils import generate_monte_carlo as generate_sp_samples
+from data_utils import gaussian_samples as generate_sp_samples
 """
 
 Discriminator Methods
@@ -123,7 +125,7 @@ def summarize_performance(epoch, generator, discriminator, latent_dim, n=100):
     # summarize discriminator performance
     print(epoch, acc_real, acc_fake)
     # scatter plot real and fake data points
-    plt.scatter(x_real[:, 0], x_real[:, 1], color='red')
+    plt.plot(x_real[:, 0], x_real[:, 1], color='red')
     # plt.plot(x_real, label='real')
     # plt.plot(x_fake, label='generated')
     # plt.legend(['real', 'generated'])
@@ -173,8 +175,8 @@ def train(g_model, d_model, gan_model, latent_dim, n_epochs=20000, n_batch=8000,
 # size of the latent space
 noise_dim = 5
 # define the discriminator model
-generator = generator(noise_dim, 11)
-discriminator = discriminator(11)
+generator = generator(noise_dim)
+discriminator = discriminator()
 gan_model = define_gan(generator, discriminator)
 # summarize gan model
-train(generator, discriminator, gan_model, noise_dim, n_epochs=30000, n_batch=100, n_eval=10)
+train(generator, discriminator, gan_model, noise_dim, n_epochs=60, n_batch=256, n_eval=30)

@@ -22,7 +22,7 @@ from time import time
 """ Environement Constants """
 learning_rate = 0.001
 lr = learning_rate
-batch_size = 28
+batch_size = 28 
 latent_dim = 20
 num_epochs = 50
 vis_freq = 2
@@ -46,7 +46,7 @@ days = (spy.index[-1] - spy.index[0]).days
 
 cagr = ((((spy['Adj Close'][-1]) / spy['Adj Close'][1])) **
         (365.0 / days)) - 1
-print('CAGR =', str(round(cagr, 4) * 100) + "%")
+print('CAGR ='+ str(round(cagr, 4) * 100) + "%")
 mu = cagr
 # create a series of percentage returns and calculate the annual volatility of returns
 spy['Returns'] = spy['Adj Close'].pct_change()
@@ -64,7 +64,8 @@ seq_length = 10  # change line 202 and 227 as well
 def sample_data(n=n_samples):
     vectors = []
     for i in range(n):
-        # create list of daily returns using random normal
+        # create list of daily returns using random no
+        rmal
         d_returns = np.random.normal(mu / T, vol / math.sqrt(T),
                                      seq_length)  # T+1 since we work with the vectors = [] and
         vectors.append(np.log(d_returns + 1))
@@ -171,12 +172,11 @@ sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 vis_Z = sample_Z(batch_size, seq_length, latent_dim)
 t0 = time()
-
-
-def get_batch(samples, batch_idx, batch_size):
+def get_batch(samples, batch_size, batch_idx):
     start_pos = batch_idx * batch_size
     end_pos = start_pos + batch_size
     return samples[start_pos:end_pos]
+
 
 
 def train_generator(batch_idx, offset):
@@ -215,7 +215,7 @@ print('num_epoch \t D_loss_curr \t G_loss_curr \t time elapsed ')
 samples = sample_data(n_samples)
 d_loss = []
 g_loss = []
-for num_epoch in range(num_epochs):
+for num_epoch in range(20):
     for batch_idx in range(0, int(n_samples / batch_size) - (
             D_rounds + G_rounds), D_rounds + G_rounds):
         if num_epoch % 2 == 0:
@@ -295,9 +295,10 @@ def plot_price_gen(num_gen_sample=1):
     for i in range(num_gen_sample):
         daily_log_returns = generated_data[0, :, i]
         price_list = [S]
+        price_list2 = []
         for x in daily_log_returns:
-            price_list.append(price_list[-1] * np.exp(x))
-        plt.plot(price_list)
+            price_list2.append(price_list[-1] * np.exp(x))
+        plt.plot(price_list2)
     return plt.show()
 
 
@@ -318,4 +319,29 @@ def plot_price_real(num_gen_samples=1):
 
 
 plot_price_gen(20000)
-plot_price_real(20000)
+plot_price_real(100)
+
+def transform2darray ( vector ) :
+    v = []
+    for i in range (len( vector ) ) :
+        v . append ( vector [ i ][0])
+    return v
+num_sample = 50000
+result_gen = prices_gen_data_frame ( num_sample ) . iloc [[ seq_length -1]]
+
+result_gen = np . asarray ( result_gen )
+result_gen = np . transpose ( result_gen )
+result_gen = transform2darray ( result_gen )
+result_real = prices_real_data_frame ( num_sample ) . iloc [[ seq_length
+-1]]
+result_real = np . asarray ( result_real )
+result_real = np . transpose ( result_real )
+result_real = transform2darray ( result_real )
+
+results = pd . DataFrame ({ 'Real ': result_real , 'Fake ': result_gen })
+
+# statistics summary
+print ( results . describe () )
+# boxplot
+results . boxplot ()
+results . hist ( bins =100)

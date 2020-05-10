@@ -18,14 +18,13 @@ from tensorflow.keras.models import Sequential, Model
 from tensorflow.keras.optimizers import Adam, RMSprop
 from numpy import expand_dims
 import keras.backend as K
-# import matplotlib.pyplot as plt
+
 
 from matplotlib import pyplot as plt
 
 import numpy as np
 from tqdm import tqdm
 
-from data_utils import generate_samples as generate_sp_samples
 
 
 import pandas as pd
@@ -33,6 +32,7 @@ df = pd.read_csv("SPY_daily.csv").fillna(0).set_index('date').sort_index()
 ts = df[["4. close"]]
 X_train = ts.dropna().values
 
+X_train = np.cos(np.arange(100))
 # # X_train= np.reshape(X_train,(1,X_train.shape[0], X_train.shape[1]))
 
 # X_train = np.expand_dims(X_train, axis=2)
@@ -110,7 +110,7 @@ class GAN():
     def wasserstein_loss(self, y_true, y_pred):
         return K.mean(y_true * y_pred)
 
-    def generator(self, n_outputs=2):
+    def generator(self, n_outputs=1):
         model = Sequential()
         # model.add(Dense(15, activation='relu', kernel_initializer='he_uniform', input_dim=noise_dim))
         # model.add(Dense(n_outputs, activation='linear'))
@@ -130,7 +130,7 @@ class GAN():
         # model.compile(optimizer='adam', loss='binary_crossentropy')
         return model
 
-    def discriminator(self, n_inputs=2):
+    def discriminator(self, n_inputs=1):
         model = Sequential()
         # model.add(Dense(25, activation='relu', kernel_initializer='he_uniform', input_dim=n_inputs))
         # model.add(Dense(1, activation='sigmoid'))
@@ -190,7 +190,7 @@ class GAN():
     def plot_gan_result(self, n):
         noise = np.random.normal(0, 1, (n, self.latent_dim))
         gen_data = self.generator.predict(noise)
-        b = gen_data.reshape(n, 2)
+        b = gen_data.reshape(n, 1)
         b = gen_data
         fig, axs = plt.subplots()
         print("noise shape")
@@ -206,7 +206,7 @@ class GAN():
 
         for epoch in tqdm(range(epochs)):
 
-            data_s, _ = generate_sp_samples(batch_size)
+            data_s = X_train
             # data_s=np.expand_dims((data_s), axis=2)
             noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
 
@@ -235,7 +235,7 @@ class GAN():
 
             if epoch % sample_interval == 0:
                 self.plot_gan_result(batch_size)
-                c = data_s.reshape(data_s.shape[0], 2)
+                c = data_s.reshape(data_s.shape[0], 1)
                 c = data_s
                 fig, axs = plt.subplots()
                 # axs.scatter(c[:, 0], c[:, 1], color='blue')
@@ -245,4 +245,4 @@ class GAN():
 
 if __name__ == '__main__':
     gan = GAN()
-    gan.train(epochs=5000, batch_size=500, sample_interval=200)
+    gan.train(epochs=5000, batch_size=100, sample_interval=200)
