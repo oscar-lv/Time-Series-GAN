@@ -32,7 +32,6 @@ df = pd.read_csv("SPY_daily.csv").fillna(0).set_index('date').sort_index()
 ts = df[["4. close"]]
 X_train = ts.dropna().values
 
-X_train = np.cos(np.arange(100))
 # # X_train= np.reshape(X_train,(1,X_train.shape[0], X_train.shape[1]))
 
 # X_train = np.expand_dims(X_train, axis=2)
@@ -45,7 +44,7 @@ class GAN():
         self.data_cols = 2
         self.data_shape = (500, 2,1)#(self.data_rows, self.data_cols)
         # self.data_shape = shape
-        self.latent_dim = 48
+        self.latent_dim = 10
         self.d_loss1 = []
         self.d_acc = []
         self.g_loss1 = []

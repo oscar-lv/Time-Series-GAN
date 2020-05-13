@@ -14,6 +14,11 @@ from tqdm import tqdm
 
 # import matplotlib.pyplot as plt
 
+import pandas as pd
+df = pd.read_csv("SPY_daily.csv").fillna(0).set_index('date').sort_index()
+ts = df[["4. close"]]
+X_train = ts.dropna().values
+
 
 class GAN():
     def __init__(self):

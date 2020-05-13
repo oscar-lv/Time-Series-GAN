@@ -10,6 +10,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow.keras.layers import Dense, LeakyReLU, BatchNormalization
 from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import RMSprop
 import tensorflow as tf
 tf.keras.backend.clear_session()
 
@@ -29,6 +30,13 @@ Discriminator Methods
 
 from tqdm import tqdm
 
+n_critic = 5
+clip_value = 0.01
+optimizer = RMSprop(lr=0.00005)
+
+
+def wasserstein_loss(y_true, y_pred):
+    return K.mean(y_true * y_pred)
 
 def discriminator(n_inputs=2):
     model = Sequential()
@@ -41,7 +49,7 @@ def discriminator(n_inputs=2):
     model.add(LeakyReLU(alpha=0.2))
     model.add(Dense(1, activation='sigmoid'))
     # compile model
-    model.compile(loss='binary_crossentropy', optimizer='adam', metrics=['accuracy'])
+    model.compile(loss=wasserstein_loss, optimizer=optimizer, metrics=['accuracy'])
     return model
 
 
@@ -60,6 +68,8 @@ def z_gen(noise_dim=5, n=100):
 
 def generator(noise_dim, n_outputs=2):
     model = Sequential()
+    # model.add(Dense(15, activation='relu', kernel_initializer='he_uniform', input_dim=noise_dim))
+    # model.add(Dense(n_outputs, activation='linear'))
 
     model.add(Dense(256, kernel_initializer='he_uniform', input_dim=noise_dim))
     model.add(LeakyReLU(alpha=0.2))
@@ -99,7 +109,7 @@ def define_gan(generator, discriminator):
     # add the discriminator
     model.add(discriminator)
     # compile model
-    model.compile(loss='binary_crossentropy', optimizer='adam')
+    model.compile(loss=wasserstein_loss(), optimizer=optimizer)
     return model
 
 
@@ -165,6 +175,10 @@ def train(g_model, d_model, gan_model, latent_dim, n_epochs=20000, n_batch=8000,
         g_loss1.append(g_loss)
         print ("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (i, d_loss[0], 100 * d_loss[1], g_loss))
         # evaluate the model every n_eval epochs
+        for l in d_model.layers:
+            weights = l.get_weights()
+            weights = [np.clip(w, -clip_value, clip_value) for w in weights]
+            l.set_weights(weights)
         if (i + 1) % n_eval == 0:
             summarize_performance(i, g_model, d_model, latent_dim, n=half_batch)
     # g_model.save('generator.h5')

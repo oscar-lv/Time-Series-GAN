@@ -25,18 +25,6 @@ unscaled_y_test = unscaled_y[n:]
 print(ohlcv_train.shape)
 print(ohlcv_test.shape)
 
-lstm_input = Input(shape=(history_points, 5), name='lstm_input')
-x = LSTM(50, name='lstm_null')(lstm_input)
-x = Dropout(0.2, name='lstm_dropout_nulll')(x)
-x = Dense(64, name='dense_null')(x)
-x = Activation('sigmoid', name='sigmoid_null')(x)
-x = Dense(1, name='dense_1')(x)
-output = Activation('linear', name='linear_output')(x)
-
-model = Model(inputs=lstm_input, outputs=output)
-adam = optimizers.Adam(lr=0.0005)
-model.compile(optimizer=adam, loss='mse')
-
 from tensorflow.keras import Sequential
 model = Sequential()
 
@@ -54,7 +42,7 @@ history = model.fit(x=ohlcv_train, y=y_train, epochs = 100, batch_size = 32)
 
 
 model.save(f'basic_model_tf.h5')
-model = load_model('models/basic_model.h5')
+model = load_model('basic_model_tf.h5')
 
 y_test_predicted = model.predict(ohlcv_test)
 y_test_predicted = y_normaliser.inverse_transform(y_test_predicted)
