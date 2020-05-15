@@ -31,3 +31,16 @@ def plot_gan_history(history, save=False):
     if save==True:
         plt.savefig('traininghistory', dpi=500)
     plt.show()
+    
+def plot_gan_result(generator, n, latent_dim):
+    gen_data = generate_samples(generator, n, latent_dim)
+    b = gen_data.reshape(n, 2)
+    b = gen_data
+    fig, axs = plt.subplots()
+    axs.scatter(b[:, 0], b[:, 1], color='red', label='generated')
+    # axs.plot(b, color = "red", label = 'generated')
+
+def generate_samples(generator, n, noise_dim):
+    noise = np.random.normal(0, 1, (n,noise_dim))
+    generated_samples = generator.predict(noise)
+    return generated_samples

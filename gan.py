@@ -90,7 +90,7 @@ class GAN():
 
         return Model(noise, data)
 
-    def generator(self, n_outputs=1):
+    def generator(self, n_outputs=2):
         model = Sequential()
         # model.add(Dense(15, activation='relu', kernel_initializer='he_uniform', input_dim=noise_dim))
         # model.add(Dense(n_outputs, activation='linear'))
@@ -108,7 +108,7 @@ class GAN():
         # model.compile(optimizer='adam', loss='binary_crossentropy')
         return model
 
-    def discriminator(self, n_inputs=1):
+    def discriminator(self, n_inputs=2):
         model = Sequential()
         # model.add(Dense(25, activation='relu', kernel_initializer='he_uniform', input_dim=n_inputs))
         # model.add(Dense(1, activation='sigmoid'))
@@ -155,14 +155,14 @@ class GAN():
     def plot_gan_result(self, n):
         noise = np.random.normal(0, 1, (n, self.latent_dim))
         gen_data = self.generator.predict(noise)
-        b = gen_data.reshape(n, 1)
+        b = gen_data.reshape(n, 2)
         b = gen_data
         fig, axs = plt.subplots()
         print("noise shape")
         print(noise.shape)
         print(noise[0])
         # axs.scatter(b[:, 0], b[:, 1], color='red', label='generated')
-        axs.plot(b, color = "red", label = 'generated')
+        axs.scatter(b[:,0], b[:,1] ,color = "red", label = 'generated')
 
     def train(self, epochs, batch_size=128, sample_interval=50):
 
@@ -171,7 +171,8 @@ class GAN():
 
         for epoch in tqdm(range(epochs)):
 
-            data_s = X_train
+            data_s, _ = generate_sp_samples(batch_size)
+
 
             noise = np.random.normal(0, 1, (batch_size, self.latent_dim))
 
@@ -196,11 +197,11 @@ class GAN():
 
             if epoch % sample_interval == 0:
                 self.plot_gan_result(batch_size)
-                c = data_s.reshape(data_s.shape[0], 1)
+                c = data_s.reshape(data_s.shape[0], 2)
                 c = data_s
                 fig, axs = plt.subplots()
                 # axs.scatter(c[:, 0], c[:, 1], color='blue')
-                axs.plot(c, color = "blue", label = 'true')
+                axs.scatter(c[:,0], c[:,1], color = "blue", label = 'true')
                 plt.show()
 
 

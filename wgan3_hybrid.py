@@ -160,12 +160,16 @@ def summarize_performance(epoch, generator, discriminator, latent_dim, n=100):
     # summarize discriminator performance
     print(epoch)
     # scatter plot real and fake data points
-    plt.plot(x_real[:, 0], x_real[:, 1], color='red')
+    plt.plot(x_real[:, 0], x_real[:, 1], color='blue')
     #plt.plot(x_real, color='red', label='real')
     #plt.plot(x_fake, color='red')
     x_fake = x_fake.reshape(n,2)
-    plt.scatter(x_fake[:, 0], x_fake[:, 1], label='fake',color='blue')
-    plt.legend(['real','fake'])
+    plt.scatter(x_fake[:, 0], x_fake[:, 1], label='fake',color='red')
+    plt.ylabel('Generated Price (USD)')
+    plt.xlabel('Periods')
+    plt.title('WGAN Generated Data')
+    plt.legend(['Generated','Generated'])
+    plt.savefig('mode_collapse3', dpi=500)
     plt.show()
 
 

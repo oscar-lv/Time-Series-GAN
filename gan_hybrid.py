@@ -116,15 +116,15 @@ GAN Methods
 
 
 def define_gan(generator, discriminator):
-    # make weights in the discriminator not trainable
+    # Freeze Weights in the Discriminator
     discriminator.trainable = False
-    # connect them
+    # Keras Sequential
     model = Sequential()
-    # add generator
+    # Adding the Generator
     model.add(generator)
-    # add the discriminator
+    # Adding the Discriminator 
     model.add(discriminator)
-    # compile model
+    # Compiling the GAN
     model.compile(loss='binary_crossentropy', optimizer='adam')
     return model
 
