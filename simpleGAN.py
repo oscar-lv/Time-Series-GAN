@@ -20,7 +20,7 @@ tf.keras.backend.clear_session()
 Discriminator Data Generation
 
 """
-from data_utils import gaussian_samples as generate_sp_samples
+from data_utils import generate_real_samples as generate_sp_samples
 """
 
 Discriminator Methods
@@ -177,4 +177,4 @@ generator = generator(noise_dim)
 discriminator = discriminator()
 gan_model = define_gan(generator, discriminator)
 # summarize gan model
-train(generator, discriminator, gan_model, noise_dim, n_epochs=60, n_batch=256, n_eval=30)
+train(generator, discriminator, gan_model, noise_dim, n_epochs=2500, n_batch=800, n_eval=30)

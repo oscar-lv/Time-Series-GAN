@@ -31,7 +31,7 @@ def main1():
     #### MONTE CARLO ####
     # Define Variables
     S = spy['Adj Close'][-1]  # starting stock price (i.e. last available real stock price )
-    T = 252  # Number of trading days
+    T = 2500  # Number of trading days
     prices = pd.DataFrame()
     plt.figure(figsize=(12, 7))
     for i in range(300):

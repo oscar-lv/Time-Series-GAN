@@ -7,7 +7,7 @@ Created on Tue Apr 28 13:53:51 2020
 """
 import numpy as np
 from numpy import hstack
-from montecarlo import generate_prices
+from benchmarking.montecarlo import generate_prices
 from scipy.stats import norm
 
 # generate n real samples with class labels
