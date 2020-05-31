@@ -20,6 +20,7 @@ Plotting Results
  
 """
 
+# Load models, generate samples
 vanilla_gan = load_model('models/generator_v2.h5')
 vanilla_hybrid = load_model('models/generator_vanilla3.h5')
 wasserstein_gan = load_model('models/generator_v3.h5')
@@ -40,19 +41,7 @@ real_prices = pd.DataFrame(generate_sp_samples(2500)[0][:,1])
 lrets1 = np.log(prices1) - np.log(prices1.shift(1))
 lrets2 = np.log(prices2) - np.log(prices2.shift(1))
 lrets3 = np.log(prices3) - np.log(prices3.shift(1))
-lrets4 = np.log(prices4) - np.ldef group_by_owners(files):
-    owners = []
-    for n in files.keys:
-        
-    return None
-
-if __name__ == "__main__":    
-    files = {
-        'Input.txt': 'Randy',
-        'Code.py': 'Stan',
-        'Output.txt': 'Randy'
-    }   
-    print(group_by_owners(files))og(prices4.shift(1))
+lrets4 = np.log(prices4) - np.log(prices4.shift(1))
 lrets = np.log(real_prices) - np.log(real_prices.shift(1))
 
 

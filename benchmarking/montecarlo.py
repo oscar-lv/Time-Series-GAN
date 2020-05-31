@@ -1,18 +1,16 @@
 # -*- coding: utf-8 -*-
 
+# Imports
 import math
 
-import matplotlib.pyplot as plt 
-import pandas as pd
-
-# import necessary packages
+import matplotlib.pyplot as plt
 import numpy as np
-# from scipy . stats import norm
+import pandas as pd
 from pandas_datareader import data
 
 from reporting import plot_dist
 
-
+# Main MONTE CARLO
 def main1():
     # download Apple price data into DataFrame
     spy = data.get_data_yahoo('SPY', start='1/1/2000 ')
@@ -48,7 +46,7 @@ def main1():
     plt.xlabel('Days')
     plt.ylabel('Generated Price')
     plt.title('Monte Carlo Simulation of S&P Prices')
-    plt.savefig('images/montecarlo.png', dpi=500)
+    #plt.savefig('images/montecarlo.png', dpi=500)
     plt.show()
     plot_dist(prices, title='Monte Carlo Simulation Log-Returns Distribution', fname='MCDist', save=False)
     return prices

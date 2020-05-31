@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
-
+# Imports
 import numpy as np
 import pandas as pd
 from sklearn import preprocessing
 
 history_points = 50
 
-
+# CSV utils
 def csv_to_dataset(csv_path):
     data = pd.read_csv(csv_path)
     data = data.drop('date', axis=1)

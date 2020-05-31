@@ -5,12 +5,15 @@ Created on Tue Apr 28 13:53:51 2020
 
 @author: oscar
 """
+# Imports
+import pandas as pd
+
 import numpy as np
 from numpy import hstack
 from benchmarking.montecarlo import generate_prices
 from scipy.stats import norm
 
-# generate n real samples with class labels
+# generate n cosine samples with class labels
 def generate_real_samples(n):
     # generate inputs in [-0.5, 0.5]
     X1 = np.arange(n)
@@ -25,7 +28,7 @@ def generate_real_samples(n):
     y = np.ones((n, 1))
     return X, y
 
-
+# Define linear samples over n
 def generate_linear_samples(n):
     # generate inputs in [-0.5, 0.5]
     X1 = np.arange(n)
@@ -39,6 +42,7 @@ def generate_linear_samples(n):
     y = np.ones((n, 1))
     return X, y
 
+# Generate Monte Carlo Simulated samples over n
 def generate_monte_carlo(n):
      # generate inputs in [-0.5, 0.5]
     X1 = np.arange(253)
@@ -52,7 +56,7 @@ def generate_monte_carlo(n):
     y = np.ones((n, 1))
     return X, y
 
-# generate n real samples with class labels
+# generate n gaussian samples with class labels
 def gaussian_samples(n):
     # generate inputs in [-0.5, 0.5]
     X1 = np.random.normal(0,1,n)
@@ -68,9 +72,8 @@ def gaussian_samples(n):
     return X, y
 
 
-import pandas as pd
 
-
+# Generate Samples from the S&P 500
 def generate_sp_samples(n):
     data = pd.read_csv('./SPY_daily.csv')[['date', '4. close']].set_index('date').sort_index()
     X1 = np.arange(len(data[0:n]))
@@ -82,6 +85,7 @@ def generate_sp_samples(n):
     y = np.ones((n, 1))
     return X, y
 
+# Generate Samples from the S&P 500 and APPLE
 def generate_double_samples(n):
     data = pd.read_csv('./SPY_daily.csv')[['date', '4. close']].set_index('date').sort_index()
     data2 = pd.read_csv('AAPL_daily.csv')[['date', '4. close']].set_index('date').sort_index()
@@ -93,6 +97,7 @@ def generate_double_samples(n):
     y = np.ones((n, 1))
     return X, y
 
+# Generate Samples from the S&P 500 Log Returns
 def generate_return_samples(n):
     data = pd.read_csv('./SPY_daily.csv')[['date', '4. close']].set_index('date').sort_index()
     X1 = np.arange(len(data[0:n]))
@@ -105,6 +110,7 @@ def generate_return_samples(n):
     y = np.ones((n, 1))
     return X, y
 
+# Generate SP500 Log Paths Samples
 def generate_log_sp_samples(n):
     data = pd.read_csv('./SPY_daily.csv')[['date', '4. close']].set_index('date').sort_index()
     X1 = np.arange(len(data[0:n]))
@@ -116,7 +122,7 @@ def generate_log_sp_samples(n):
     y = np.ones((n, 1))
     return X, y
 
-
+# Generate sp500 processed data
 def generate_sm_df():
     df = pd.read_csv("SPY_daily.csv").fillna(0).set_index('date').sort_index()
     train_data, test_data = df[0:int(len(df) * 0.8)], df[int(len(df) * 0.8):]
@@ -124,7 +130,7 @@ def generate_sm_df():
     test_df = test_data['4. close'].values
     return train_df, test_df
 
-
+# Data from other time series examples
 def generate_ts_samples(n):
     data = pd.read_csv("AirPassengers.csv")[["#Passengers"]]
     X1 = np.arange(len(data[0:n]))
@@ -136,7 +142,7 @@ def generate_ts_samples(n):
     return X, y
 
 
-# generate n fake samples with class labels
+# Fake Labels
 def generate_fake_samples(n):
     # generate inputs in [-0.5, 0.5]
     X1 = np.rand(n) - 0.5

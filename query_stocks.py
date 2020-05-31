@@ -5,13 +5,13 @@ Created on Fri Oct 25 11:28:22 2019
 
 @author: oscar
 """
-
+# Imports
 from alpha_vantage.timeseries import TimeSeries
 from pprint import pprint
 import json
 import argparse
 
-
+# Get stocks, depedning on symbol and window option
 def save_dataset(symbol, time_window):
     #credentials = json.load(open('creds.json', 'r'))
     #api_key = credentials['av_api_key']

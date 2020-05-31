@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
 
+# Imports
 import numpy as np
-from tensorflow.keras import optimizers
-from tensorflow.keras.layers import Dense, Dropout, LSTM, Input, Activation
-from tensorflow.keras.models import Model, load_model
+from tensorflow.keras.layers import Dense, Dropout, LSTM
+from tensorflow.keras.models import load_model
 
 from utils import csv_to_dataset, history_points
 
-# dataset
+# Data
 
 ohlcv_histories, _, next_day_open_values, unscaled_y, y_normaliser = csv_to_dataset('SPY_daily.csv')
 
@@ -25,35 +25,42 @@ unscaled_y_test = unscaled_y[n:]
 print(ohlcv_train.shape)
 print(ohlcv_test.shape)
 
+# Model Definition
+
 from tensorflow.keras import Sequential
+
 model = Sequential()
 
-model.add(LSTM(units = 50, return_sequences = True, input_shape=(history_points, 5)))
+model.add(LSTM(units=50, return_sequences=True, input_shape=(history_points, 5)))
 model.add(Dropout(0.2))
-model.add(LSTM(units = 50, return_sequences = True))
+model.add(LSTM(units=50, return_sequences=True))
 model.add(Dropout(0.2))
-model.add(LSTM(units = 50, return_sequences = True))
+model.add(LSTM(units=50, return_sequences=True))
 model.add(Dropout(0.2))
-model.add(LSTM(units = 50))
+model.add(LSTM(units=50))
 model.add(Dropout(0.2))
-model.add(Dense(units = 1))
-model.compile(optimizer = 'adam', loss = 'mean_squared_error')
-history = model.fit(x=ohlcv_train, y=y_train, epochs = 100, batch_size = 32)
-
+model.add(Dense(units=1))
+model.compile(optimizer='adam', loss='mean_squared_error')
+history = model.fit(x=ohlcv_train, y=y_train, epochs=100, batch_size=32)
 
 model.save(f'basic_model_tf.h5')
 model = load_model('basic_model_tf.h5')
 
+# Testing, Prediction and Evaluation
 y_test_predicted = model.predict(ohlcv_test)
 y_test_predicted = y_normaliser.inverse_transform(y_test_predicted)
 y_predicted = model.predict(ohlcv_histories)
 y_predicted = y_normaliser.inverse_transform(y_predicted)
 
+
 def smape_kun(y_true, y_pred):
     return np.mean((np.abs(y_pred - y_true) * 200 / (np.abs(y_pred) +
                                                      np.abs(y_true))))
-def mean_absolute_percentage_error(y_true, y_pred): 
+
+
+def mean_absolute_percentage_error(y_true, y_pred):
     return np.mean(np.abs((y_true - y_pred) / y_true)) * 100
+
 
 assert unscaled_y_test.shape == y_test_predicted.shape
 from sklearn.metrics import mean_squared_error
@@ -80,6 +87,6 @@ plt.legend(['Real', 'Predicted'])
 plt.title(('LSTM S&P Price Prediction'))
 plt.xlabel('Time Step')
 plt.ylabel('Price')
-plt.savefig('lstm.png',dpi=500)
+plt.savefig('lstm.png', dpi=500)
 
 plt.show()
