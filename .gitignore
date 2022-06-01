@@ -1,6 +1,4 @@
 *.h5
 *.csv
-models
-images
-*.png
 *.pyc
+.idea/*
