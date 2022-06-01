@@ -1,5 +1,9 @@
 # Generative Adversarial Network Modelling of Financial Time Series (Oscar Levy, 2020)
 
+A Wasserstein approach to modelling financial time-series distributions.
+
+
+![Visualisation](./images/gan_results.png)
 
 Dependencies :
 - Python 3.7
