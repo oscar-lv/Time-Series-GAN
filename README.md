@@ -1,4 +1,4 @@
-# Oscar Levy - Final Year Project on Generative Adversarial Network Modelling of Financial Time Series
+# Generative Adversarial Network Modelling of Financial Time Series (Oscar Levy, 2020)
 
 
 Dependencies :
